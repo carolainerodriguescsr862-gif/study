@@ -22,15 +22,14 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    private Product findByIdOrThrow(String id){
+        return  productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+    }
+
     public ProductResponseDTO create(ProductRequestDTO dto){
 
-        if(dto.getName() == null || dto.getName().isBlank()){
-            throw new BusinessException("Invalid name!");
-        }
 
-        if(dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0){
-            throw new BusinessException("The value must be greater than zero.");
-        }
         boolean exist = productRepository.existsByName(dto.getName());
         if(exist){
             throw new BusinessException("There is already a product with that name!");
@@ -42,22 +41,13 @@ public class ProductService {
         product.setActive(true);
 
         Product saved = productRepository.save(product);
-        return ProductMapper.toDTO(product);
+        return ProductMapper.toDTO(saved);
     }
 
     public ProductResponseDTO update(String id, ProductUpdateDTO dto){
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found."));
-
+        Product product = findByIdOrThrow(id);
         if(!product.isActive()){
             throw new BusinessException("Product is not active!");
-        }
-        if(dto.getName() == null || dto.getName().isBlank()){
-            throw new BusinessException("Invalid name!");
-        }
-
-        if(dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0){
-            throw new BusinessException("The value must be greater than zero.");
         }
 
         boolean exist = productRepository.existsByName(dto.getName());
@@ -68,14 +58,13 @@ public class ProductService {
         product.setPrice(dto.getPrice());
 
         Product updated = productRepository.save(product);
-        return ProductMapper.toDTO(product);
+        return ProductMapper.toDTO(updated);
 
     }
 
     public ProductResponseDTO updatePartial(String id, ProductPatchDTO dto) {
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product product = findByIdOrThrow(id);
 
         if (!product.isActive()) {
             throw new BusinessException("Inactive product");
@@ -95,8 +84,7 @@ public class ProductService {
     }
  public ProductResponseDTO findById(String id) {
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product product = findByIdOrThrow(id);
 
         return ProductMapper.toDTO(product);
     }
@@ -105,19 +93,18 @@ public class ProductService {
 
         return productRepository.findAll()
                 .stream()
-                .map(p -> new ProductResponseDTO(
-                        p.getId(),
-                        p.getName(),
-                        p.getPrice(),
-                        p.isActive()
-                ))
+                .map(ProductMapper::toDTO
+                )
                 .toList();
     }
 
     public void delete(String id) {
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product product =findByIdOrThrow(id);
+
+        if(!product.isActive()){
+            throw new BusinessException("Product not active.");
+        }
 
         product.setActive(false);
         productRepository.save(product);
