@@ -6,6 +6,8 @@ import com.example.study.api.dto.ProductResponseDTO;
 import com.example.study.api.dto.ProductUpdateDTO;
 import com.example.study.api.mapper.ProductMapper;
 import com.example.study.domain.entity.Product;
+import com.example.study.domain.exception.BusinessException;
+import com.example.study.domain.exception.ResourceNotFoundException;
 import com.example.study.domain.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +25,15 @@ public class ProductService {
     public ProductResponseDTO create(ProductRequestDTO dto){
 
         if(dto.getName() == null || dto.getName().isBlank()){
-            throw new RuntimeException("Invalid name!");
+            throw new BusinessException("Invalid name!");
         }
 
         if(dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0){
-            throw new RuntimeException("The value must be greater than zero.");
+            throw new BusinessException("The value must be greater than zero.");
         }
         boolean exist = productRepository.existsByName(dto.getName());
         if(exist){
-            throw new RuntimeException("There is already a product with that name!");
+            throw new BusinessException("There is already a product with that name!");
         }
 
         Product product = new Product();
@@ -45,22 +47,22 @@ public class ProductService {
 
     public ProductResponseDTO update(String id, ProductUpdateDTO dto){
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found."));
 
         if(!product.isActive()){
-            throw new RuntimeException("Product is not active!");
+            throw new BusinessException("Product is not active!");
         }
         if(dto.getName() == null || dto.getName().isBlank()){
-            throw new RuntimeException("Invalid name!");
+            throw new BusinessException("Invalid name!");
         }
 
         if(dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0){
-            throw new RuntimeException("The value must be greater than zero.");
+            throw new BusinessException("The value must be greater than zero.");
         }
 
         boolean exist = productRepository.existsByName(dto.getName());
         if(exist && !product.getName().equals(dto.getName())){
-            throw new RuntimeException("There is already a product with that name.");
+            throw new BusinessException("There is already a product with that name.");
         }
         product.setName(dto.getName());
         product.setPrice(dto.getPrice());
@@ -73,10 +75,10 @@ public class ProductService {
     public ProductResponseDTO updatePartial(String id, ProductPatchDTO dto) {
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (!product.isActive()) {
-            throw new RuntimeException("Inactive product");
+            throw new BusinessException("Inactive product");
         }
 
         if (dto.getName() != null && !dto.getName().isBlank()) {
@@ -94,7 +96,7 @@ public class ProductService {
  public ProductResponseDTO findById(String id) {
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         return ProductMapper.toDTO(product);
     }
@@ -115,7 +117,7 @@ public class ProductService {
     public void delete(String id) {
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         product.setActive(false);
         productRepository.save(product);
