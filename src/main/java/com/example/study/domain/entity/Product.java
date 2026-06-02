@@ -1,9 +1,6 @@
 package com.example.study.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,6 +8,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Data
+@Builder
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -19,4 +17,7 @@ public class Product {
     private BigDecimal price;
     @Builder.Default
     private boolean active = true;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }
