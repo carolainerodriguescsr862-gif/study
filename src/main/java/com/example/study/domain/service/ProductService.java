@@ -5,9 +5,11 @@ import com.example.study.api.dto.ProductRequestDTO;
 import com.example.study.api.dto.ProductResponseDTO;
 import com.example.study.api.dto.ProductUpdateDTO;
 import com.example.study.api.mapper.ProductMapper;
+import com.example.study.domain.entity.Category;
 import com.example.study.domain.entity.Product;
 import com.example.study.domain.exception.BusinessException;
 import com.example.study.domain.exception.ResourceNotFoundException;
+import com.example.study.domain.repository.CategoryRepository;
 import com.example.study.domain.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +19,11 @@ import java.util.List;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     private Product findByIdOrThrow(String id){
@@ -27,18 +31,21 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
     }
 
-    public ProductResponseDTO create(ProductRequestDTO dto){
-
+    public ProductResponseDTO create(ProductRequestDTO dto, String categoryId){
 
         boolean exist = productRepository.existsByName(dto.getName());
         if(exist){
             throw new BusinessException("There is already a product with that name!");
         }
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found."));
 
         Product product = new Product();
+
         product.setName(dto.getName());
         product.setPrice(dto.getPrice());
         product.setActive(true);
+        product.setCategory(category);
 
         Product saved = productRepository.save(product);
         return ProductMapper.toDTO(saved);
