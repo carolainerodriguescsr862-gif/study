@@ -77,11 +77,17 @@ public class ProductService {
             throw new BusinessException("Inactive product");
         }
 
-        if (dto.getName() != null && !dto.getName().isBlank()) {
+        if(dto.getName() != null){
+            if(dto.getName().isBlank()){
+                throw new BusinessException("The name cannot be blank.");
+            }
             product.setName(dto.getName());
         }
 
-        if (dto.getPrice() != null && dto.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+        if(dto.getPrice() != null){
+            if(dto.getPrice().compareTo(BigDecimal.ZERO) <= 0){
+                throw new BusinessException("The price must be greater than zero.");
+            }
             product.setPrice(dto.getPrice());
         }
 
