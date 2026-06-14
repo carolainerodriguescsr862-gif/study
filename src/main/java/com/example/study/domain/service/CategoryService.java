@@ -1,5 +1,6 @@
 package com.example.study.domain.service;
 
+import com.example.study.api.dto.CategoryDetailDTO;
 import com.example.study.api.dto.CategoryRequestDTO;
 import com.example.study.api.dto.CategoryResponseDTO;
 import com.example.study.api.mapper.CategoryMapper;
@@ -7,6 +8,8 @@ import com.example.study.domain.entity.Category;
 import com.example.study.domain.exception.BusinessException;
 import com.example.study.domain.exception.ResourceNotFoundException;
 import com.example.study.domain.repository.CategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,17 +56,17 @@ public class CategoryService {
     }
 
 
-    public List<CategoryResponseDTO> findAll(){
+    public Page<CategoryResponseDTO> findAll(Pageable pageable){
 
-        return categoryRepository.findAll().stream()
-                .map(CategoryMapper::toDTO)
-                .toList();
+        return categoryRepository.findAll(pageable)
+                .map(CategoryMapper::toDTO);
+
     }
 
-    public CategoryResponseDTO findById(String id){
+    public CategoryDetailDTO findById(String id){
 
         Category category = findByIdOrThrow(id);
-        return CategoryMapper.toDTO(category);
+        return CategoryMapper.toDetailDTO(category);
     }
 
 }

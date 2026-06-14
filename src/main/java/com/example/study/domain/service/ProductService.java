@@ -11,10 +11,11 @@ import com.example.study.domain.exception.BusinessException;
 import com.example.study.domain.exception.ResourceNotFoundException;
 import com.example.study.domain.repository.CategoryRepository;
 import com.example.study.domain.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 public class ProductService {
@@ -102,13 +103,11 @@ public class ProductService {
         return ProductMapper.toDTO(product);
     }
 
-    public List<ProductResponseDTO> findAll() {
+    public Page<ProductResponseDTO> findAll(Pageable pageable) {
+        Page<Product> productPage = productRepository.findAll(pageable);
 
-        return productRepository.findAll()
-                .stream()
-                .map(ProductMapper::toDTO
-                )
-                .toList();
+        return productPage.map(ProductMapper::toDTO);
+
     }
 
     public void delete(String id) {
