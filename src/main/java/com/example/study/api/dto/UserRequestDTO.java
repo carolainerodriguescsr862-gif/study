@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class UserRequestDTO {
     @NotBlank(message= "Name cannot be empty")
-    private String name;
+    private String login;
     @NotBlank(message= "Password cannot be empty")
     private String password;
 

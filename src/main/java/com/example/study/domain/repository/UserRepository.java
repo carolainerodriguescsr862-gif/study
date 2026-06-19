@@ -3,6 +3,10 @@ package com.example.study.domain.repository;
 import com.example.study.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface UserRepository extends JpaRepository<User, String> {
-    boolean existsByName(String name);
+    boolean existsByLogin(String login);
+
+   Optional<User> findByLogin(String login);
 }

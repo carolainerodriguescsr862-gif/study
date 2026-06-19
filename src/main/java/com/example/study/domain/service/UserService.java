@@ -7,6 +7,9 @@ import com.example.study.domain.entity.User;
 import com.example.study.domain.exception.BusinessException;
 import com.example.study.domain.exception.ResourceNotFoundException;
 import com.example.study.domain.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +23,9 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    private User findByIdOrThrow(String id){
-        return  userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    }
 
-    public UserResponseDTO create(UserRequestDTO dto){
-        boolean exists = userRepository.existsByName(dto.getName());
+    public UserResponseDTO register(UserRequestDTO dto){
+        boolean exists = userRepository.existsByLogin(dto.getLogin());
         if(exists){
             throw new BusinessException("There is already a user with that name!");
         }
@@ -35,10 +34,12 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(cleanPassword);
 
         User user = new User();
-        user.setName(dto.getName());
+        user.setLogin(dto.getLogin());
         user.setPassword(encryptedPassword);
 
         User saved = userRepository.save(user);
         return UserMapper.toDTO(saved);
     }
+
+
 }

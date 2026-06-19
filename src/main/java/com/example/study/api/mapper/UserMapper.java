@@ -8,7 +8,7 @@ public class UserMapper {
     public static UserResponseDTO toDTO(User user){
         return new UserResponseDTO(
                 user.getId(),
-                user.getName(),
+                user.getLogin(),
                 user.getDateTime()
         );
     }

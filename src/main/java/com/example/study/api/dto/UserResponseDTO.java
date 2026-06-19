@@ -4,6 +4,6 @@ import java.time.LocalDateTime;
 
 public record UserResponseDTO(
         String id,
-        String name,
+        String login,
         LocalDateTime dateTime
 ) {}
