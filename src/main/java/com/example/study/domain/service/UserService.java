@@ -4,14 +4,14 @@ import com.example.study.api.dto.UserRequestDTO;
 import com.example.study.api.dto.UserResponseDTO;
 import com.example.study.api.mapper.UserMapper;
 import com.example.study.domain.entity.User;
+import com.example.study.domain.enums.UserRole;
 import com.example.study.domain.exception.BusinessException;
-import com.example.study.domain.exception.ResourceNotFoundException;
 import com.example.study.domain.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -36,9 +36,18 @@ public class UserService {
         User user = new User();
         user.setLogin(dto.getLogin());
         user.setPassword(encryptedPassword);
+        user.setUserRole(UserRole.USER);
 
         User saved = userRepository.save(user);
         return UserMapper.toDTO(saved);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponseDTO> findAll(){
+        return userRepository.findAll()
+                .stream()
+                .map(UserMapper::toDTO)
+                .toList();
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.study.domain.entity;
 
+import com.example.study.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +19,8 @@ public class User implements UserDetails {
     private String id;
     private String login;
     private String password;
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
     private LocalDateTime dateTime;
 
     @PrePersist
@@ -27,7 +30,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(userRole);
     }
 
     @Override

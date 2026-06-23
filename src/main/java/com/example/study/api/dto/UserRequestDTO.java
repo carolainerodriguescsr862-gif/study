@@ -10,4 +10,5 @@ public class UserRequestDTO {
     @NotBlank(message= "Password cannot be empty")
     private String password;
 
+
 }
